@@ -1,4 +1,4 @@
-name: Nyra Builder
+name: Nova Builder
 on: workflow_dispatch
 jobs:
   make-app:
@@ -19,12 +19,15 @@ jobs:
           test -n "$F"
           echo "$F" > codepath.txt
       - name: Create project
-        run: flutter create --org com.nyra --project-name nyra_app app
+        run: flutter create --org com.nova --project-name nova_app app
       - name: Add code, key and model
         run: |
           cp "$(cat codepath.txt)" app/lib/main.dart
           sed -i "s#get your api#${{ secrets.GEMINI_KEY }}#" app/lib/main.dart
           sed -i "s#put-exact-model-name-here#gemini-2.5-flash#" app/lib/main.dart
+          sed -i "s#contains('hey jarvis')#contains('hey nova')#" app/lib/main.dart
+          sed -i "s#contains('jarvis')#contains('nova')#" app/lib/main.dart
+          sed -i "s#Hey Jarvis#Hey Nova#" app/lib/main.dart
       - name: Add packages
         working-directory: app
         run: flutter pub add google_generative_ai speech_to_text flutter_tts url_launcher android_intent_plus intl audioplayers
@@ -32,11 +35,11 @@ jobs:
         run: |
           M=app/android/app/src/main/AndroidManifest.xml
           sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/><uses-permission android:name="android.permission.RECORD_AUDIO"/><queries><intent><action android:name="android.intent.action.TTS_SERVICE"/></intent><intent><action android:name="android.intent.action.VIEW"/><data android:scheme="https"/></intent></queries><application#' $M
-          sed -i 's#android:label="[^"]*"#android:label="Nyra"#' $M
+          sed -i 's#android:label="[^"]*"#android:label="Nova"#' $M
       - name: Build
         working-directory: app
         run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
-          name: Nyra-apk
+          name: Nova-apk
           path: app/build/app/outputs/flutter-apk/app-release.apk
